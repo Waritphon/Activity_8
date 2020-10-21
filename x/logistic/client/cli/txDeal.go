@@ -138,7 +138,35 @@ func GetCmdReceive(cdc *codec.Codec) *cobra.Command {
 
 			orderid := args[0]
 
+			
 			msg := types.NewMsgReceive(cliCtx.GetFromAddress(), orderid)
+			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+}
+
+
+// GetCmdReject receive orderid
+// check if current temp is still acceptable or not
+func GetCmdReject(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "reject [orderid] ",
+		Short: "reject the provided orderid",
+		Args:  cobra.ExactArgs(1), // Does your request require arguments
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			orderid := args[0]
+			// change to NewMsgReject
+			msg := types.NewMsgReject(cliCtx.GetFromAddress(), orderid)
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err

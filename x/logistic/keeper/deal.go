@@ -33,6 +33,22 @@ func (k Keeper) GetDeal(ctx sdk.Context, orderid string) (types.Deal, error) {
 }
 
 // function to get deal with defined orderid
+// Reference from ACT-7
+
+func getListDeal(ctx sdk.Context, k Keeper) ([]byte, error) {
+	var listDeal []types.Deal
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.DealPrefix))
+	for ; iterator.Valid(); iterator.Next() {
+		var commit types.Deal
+		k.cdc.MustUnmarshalBinaryLengthPrefixed(store.Get(iterator.Key()), &commit)
+		listDeal = append(listDeal, commit)
+	}
+	res := codec.MustMarshalJSONIndent(k.cdc, listDeal)
+	return res, nil
+}
+
+// function to get deal with defined orderid
 func getDeal(ctx sdk.Context, path []string, k Keeper) (res []byte, sdkError error) {
 	orderid := path[0]
 	deal, err := k.GetDeal(ctx, orderid)

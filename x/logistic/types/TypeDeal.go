@@ -14,6 +14,7 @@ type StateType string
 const (
 	Created   StateType = "Created"
 	InTransit           = "InTransit"
+	Reject				= "Reject"
 	Complete            = "Complete"
 )
 
